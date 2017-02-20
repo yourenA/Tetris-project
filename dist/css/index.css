@@ -1,0 +1,25 @@
+@charset "UTF-8";
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; }
+
+/*定义model的公共css*/
+.activityModel {
+  border: 1px;
+  width: 20px;
+  height: 20px;
+  position: absolute; }
+
+/* 遍历$modelStatus的所有key，创建各自的类 */
+.activityModel {
+  background: -webkit-linear-gradient(20deg, indianred, white);
+  background: linear-gradient(70deg, indianred, white); }
+
+.site {
+  position: absolute;
+  left: 200px;
+  top: 200px;
+  width: 200px;
+  height: 360px;
+  background: black; }
