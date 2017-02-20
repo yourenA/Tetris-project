@@ -1,1 +1,1 @@
-本DEMO代码转自 https://github.com/timmyLan/tetris
+本DEMO的俄罗斯方块代码转自 https://github.com/timmyLan/tetris
