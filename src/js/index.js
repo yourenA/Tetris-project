@@ -20,32 +20,76 @@
  * b.doStuff() // "stuff"
  */
 class Block {
-    constructor(siteSize) {
+    constructor(params) {
         /**
-         * 将new Block(siteSize) 参数传进this
+         * 将new Block(params) 参数传进this
          */
-        this.siteSize = siteSize;
+        this.siteSize = params.siteSize;
+        this.arr=params.arr;
+        this.BLOCK_SIZE=params.BLOCK_SIZE
+    }
+
+    /**
+     * 判断二维数组为1的下标
+     */
+
+     checkArrWith1(arr,callback){
+        for(let i=0;i<=arr.length-1;i++){
+            console.log(arr[i])
+            for(let j=0;j<=arr.length-1;j++){
+                if(arr[i][j]==1){
+                    console.log("i:",i," j:",j)
+                    callback.call(this,i,j)
+                }
+            }
+        }
+     }
+
+    /**
+     * 根据数组矩阵画出当前方块
+     */
+    draw(i,j){
+        let activeModel = document.createElement('div');
+        activeModel.className = 'activityModel';
+        activeModel.style.top=`${this.siteSize.top+i*this.BLOCK_SIZE}px`;
+        activeModel.style.left=`${this.siteSize.left+this.siteSize.width/2+j*this.BLOCK_SIZE}px`;
+        document.body.appendChild(activeModel);
     }
 
     /**
      * 判断是否可以移动
      */
     canMove() {
-        let activeModel = document.querySelector('.activityModel'),
-            top = parseInt(activeModel.style.top),
-            left = parseInt(activeModel.style.left),
+        let activeModel = document.querySelectorAll('.activityModel'),
+            tops = [],
+            lefts = [],
             canMoveRight = true,
             canMoveTop = true,
             canMoveDown = true,
             canMoveLeft=true;
 
-        if(left+20>= this.siteSize.left+this.siteSize.width){
+        //Array.from方法用于将类数组转为真正的数组
+        //for...of: for...in循环读取键名，for...of循环读取键值
+        for(let v of Array.from(activeModel)){
+            tops.push(parseInt(v.style.top));
+            lefts.push(parseInt(v.style.left))
+        }
+
+        //min() 方法可返回指定的数字中带有最低值的数字。参数为用逗号分隔的参数序列，不是数组
+        //max() 方法可返回指定的数字中带有最大值的数字。
+        //... 扩展运算符：将数组转为用逗号分隔的参数序列
+        //... reset运算符：其功能与扩展运算符恰好相反，把逗号隔开的值序列组合成一个数组
+        let top=Math.min(...tops),
+            left=Math.min(...lefts),
+            right=Math.max(...lefts),
+            down=Math.max(...tops);
+        if(right+20>= this.siteSize.left+this.siteSize.width){
             canMoveRight=false;
         }
         if(left-20<this.siteSize.left){
             canMoveLeft=false;
         }
-        if(top+20>=this.siteSize.top+this.siteSize.height){
+        if(down+20>=this.siteSize.top+this.siteSize.height){
             canMoveDown=false;
         }
         if(top-20<this.siteSize.top){
@@ -65,15 +109,11 @@ class Block {
      */
     move() {
         document.onkeydown = (e)=> {
-            let activeModel = document.querySelector('.activityModel'),
-                left = parseInt(activeModel.style.left ? parseInt(activeModel.style.left) : 0),
-                top = parseInt(activeModel.style.top ? parseInt(activeModel.style.top) : 0),
+            let activeModel = document.querySelectorAll('.activityModel'),
                 canMoveRight,
                 canMoveLeft,
                 canMoveTop,
                 canMoveDown;
-
-
             const key = e.keyCode;
             console.log("key", key);
             switch (key) {
@@ -81,7 +121,10 @@ class Block {
                 case 37:
                     canMoveLeft=this.canMove().canMoveLeft;
                     if(canMoveLeft){
-                        activeModel.style.left = `${left - 20}px`;
+                        for(let v of activeModel){
+                            v.style.left = `${parseInt(v.style.left) - 20}px`;
+                        }
+
                     }else{
                         console.log("can`t move left")
                     }
@@ -91,7 +134,9 @@ class Block {
                 case 38:
                     canMoveTop=this.canMove().canMoveTop;
                     if(canMoveTop){
-                        activeModel.style.top = `${top - 20}px`;
+                        for(let v of activeModel){
+                            v.style.top = `${parseInt(v.style.top) - 20}px`;
+                        }
                     }else{
                         console.log("can`t move top")
                     }
@@ -100,7 +145,9 @@ class Block {
                 case 39:
                     canMoveRight=this.canMove().canMoveRight;
                     if(canMoveRight){
-                        activeModel.style.left = `${left + 20}px`;
+                        for(let v of activeModel){
+                            v.style.left = `${parseInt(v.style.left) + 20}px`;
+                        }
                     }else{
                         console.log("can`t move right")
                     }
@@ -108,7 +155,9 @@ class Block {
                 case 40:
                     canMoveDown=this.canMove().canMoveDown;
                     if(canMoveDown){
-                        activeModel.style.top = `${top + 20}px`;
+                        for(let v of activeModel){
+                            v.style.top = `${parseInt(v.style.top) + 20}px`;
+                        }
                     }else{
                         console.log("can`t move down");
                     }
@@ -123,11 +172,7 @@ class Block {
     /**
      * 初始化方块*/
     init() {
-        let activeModel = document.createElement('div');
-        activeModel.className = 'activityModel';
-        activeModel.style.top=`${this.siteSize.top}px`;
-        activeModel.style.left=`${this.siteSize.left+this.siteSize.width/2}px`
-        document.body.appendChild(activeModel);
+        this.checkArrWith1(this.arr,this.draw)
     }
 }
 
@@ -154,8 +199,15 @@ window.onload = () => {
         height: parseInt(height),
         left: parseInt(left),
         top: parseInt(top)
+    };
+    const arr=[[1,0],[1,0],[1,1]];
+    const BLOCK_SIZE=20;
+    const params={
+        arr:arr,
+        siteSize:siteSize,
+        BLOCK_SIZE:BLOCK_SIZE
     }
-    let block = new Block(siteSize);
+    let block = new Block(params);
     block.init();
     block.move();
 
