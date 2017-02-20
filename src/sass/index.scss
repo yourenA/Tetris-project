@@ -13,7 +13,8 @@
   position: absolute;
 }
 $modelStatus:(
-  activityModel:linear-gradient(70deg, indianred, white)
+  activityModel:linear-gradient(70deg, indianred, white),
+  inactiveModel:linear-gradient(70deg, grey, white)
 );
 
 /* 遍历$modelStatus的所有key，创建各自的类 */

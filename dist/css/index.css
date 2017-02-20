@@ -5,7 +5,7 @@
   box-sizing: border-box; }
 
 /*定义model的公共css*/
-.activityModel {
+.activityModel, .inactiveModel {
   border: 1px;
   width: 20px;
   height: 20px;
@@ -15,6 +15,10 @@
 .activityModel {
   background: -webkit-linear-gradient(20deg, indianred, white);
   background: linear-gradient(70deg, indianred, white); }
+
+.inactiveModel {
+  background: -webkit-linear-gradient(20deg, grey, white);
+  background: linear-gradient(70deg, grey, white); }
 
 .site {
   position: absolute;
