@@ -26,7 +26,37 @@ class Block {
          */
         this.siteSize = params.siteSize;
         this.arr=params.arr;
-        this.BLOCK_SIZE=params.BLOCK_SIZE
+        this.BLOCK_SIZE=params.BLOCK_SIZE;
+        this.curLeft=params.curLeft;
+        this.curTop=params.curTop;
+    }
+
+    /**
+     * 数组矩阵顺时针旋转
+     */
+    clockwise(arr){
+        let newArr=[];
+        for(let i=0;i<=arr.length-1;i++){
+            let temArr=[];
+            for(let j=arr.length-1;j>=0;j--){
+                temArr.push(arr[j][i]);
+            }
+            newArr.push(temArr)
+        }
+        console.log(newArr)
+        let lefts=[];
+        let tops =[];
+
+        this.checkArrWith1(newArr,function (i,j) {
+            lefts.push( j * this.BLOCK_SIZE);
+            tops.push(i*this.BLOCK_SIZE);
+        });
+
+        return {
+            newArr:newArr,
+            lefts:lefts,
+            tops:tops
+        }
     }
 
     /**
@@ -38,8 +68,8 @@ class Block {
             console.log(arr[i])
             for(let j=0;j<=arr.length-1;j++){
                 if(arr[i][j]==1){
-                    console.log("i:",i," j:",j)
-                    callback.call(this,i,j)
+                    console.log("i:",i," j:",j);
+                    callback.call(this,i+this.curTop,j+this.curLeft)
                 }
             }
         }
@@ -51,15 +81,15 @@ class Block {
     draw(i,j){
         let activeModel = document.createElement('div');
         activeModel.className = 'activityModel';
-        activeModel.style.top=`${this.siteSize.top+i*this.BLOCK_SIZE}px`;
-        activeModel.style.left=`${this.siteSize.left+this.siteSize.width/2+j*this.BLOCK_SIZE}px`;
+        activeModel.style.top=`${i*this.BLOCK_SIZE}px`;
+        activeModel.style.left=`${j*this.BLOCK_SIZE}px`;
         document.body.appendChild(activeModel);
     }
 
     /**
      * 判断是否可以移动
      */
-    canMove() {
+    canMove(arr,deform=false) {
         let activeModel = document.querySelectorAll('.activityModel'),
             tops = [],
             lefts = [],
@@ -67,13 +97,16 @@ class Block {
             canMoveTop = true,
             canMoveDown = true,
             canMoveLeft=true;
-
+        this.checkArrWith1(arr,function (i,j) {
+            tops.push(parseInt(i * this.BLOCK_SIZE));
+            lefts.push(parseInt(j * this.BLOCK_SIZE));
+        });
         //Array.from方法用于将类数组转为真正的数组
         //for...of: for...in循环读取键名，for...of循环读取键值
-        for(let v of Array.from(activeModel)){
-            tops.push(parseInt(v.style.top));
-            lefts.push(parseInt(v.style.left))
-        }
+        // for(let v of Array.from(activeModel)){
+        //     tops.push(parseInt(v.style.top));
+        //     lefts.push(parseInt(v.style.left))
+        // }
 
         //min() 方法可返回指定的数字中带有最低值的数字。参数为用逗号分隔的参数序列，不是数组
         //max() 方法可返回指定的数字中带有最大值的数字。
@@ -83,9 +116,16 @@ class Block {
             left=Math.min(...lefts),
             right=Math.max(...lefts),
             down=Math.max(...tops);
-        if(right+20>= this.siteSize.left+this.siteSize.width){
-            canMoveRight=false;
+        if(deform){
+            if(right+20>= this.siteSize.left+this.siteSize.width){
+                canMoveRight=false;
+            }
+        }else{
+            if(right+20>= this.siteSize.left+this.siteSize.width){
+                canMoveRight=false;
+            }
         }
+
         if(left-20<this.siteSize.left){
             canMoveLeft=false;
         }
@@ -110,6 +150,7 @@ class Block {
     move() {
         document.onkeydown = (e)=> {
             let activeModel = document.querySelectorAll('.activityModel'),
+                move,
                 canMoveRight,
                 canMoveLeft,
                 canMoveTop,
@@ -119,11 +160,12 @@ class Block {
             switch (key) {
                 //left
                 case 37:
-                    canMoveLeft=this.canMove().canMoveLeft;
+                    canMoveLeft=this.canMove(this.arr).canMoveLeft;
                     if(canMoveLeft){
                         for(let v of activeModel){
                             v.style.left = `${parseInt(v.style.left) - 20}px`;
                         }
+                        this.curLeft--;
 
                     }else{
                         console.log("can`t move left")
@@ -132,32 +174,37 @@ class Block {
                     break;
                 //up
                 case 38:
-                    canMoveTop=this.canMove().canMoveTop;
-                    if(canMoveTop){
-                        for(let v of activeModel){
-                            v.style.top = `${parseInt(v.style.top) - 20}px`;
+                    let {newArr ,lefts,tops}=this.clockwise(this.arr);
+                    move=this.canMove(newArr,true);
+                    canMoveDown=move.canMoveDown;
+                    canMoveRight=move.canMoveRight;
+                    if(canMoveRight && canMoveRight){
+                        this.arr=newArr;
+                        for(let i in lefts){
+                            activeModel[i].style.left=`${lefts[i]}px`;
+                            activeModel[i].style.top=`${tops[i]}px`
                         }
-                    }else{
-                        console.log("can`t move top")
                     }
                     break;
                 //right
                 case 39:
-                    canMoveRight=this.canMove().canMoveRight;
+                    canMoveRight=this.canMove(this.arr).canMoveRight;
                     if(canMoveRight){
                         for(let v of activeModel){
                             v.style.left = `${parseInt(v.style.left) + 20}px`;
                         }
+                        this.curLeft++
                     }else{
                         console.log("can`t move right")
                     }
                     break;
                 case 40:
-                    canMoveDown=this.canMove().canMoveDown;
+                    canMoveDown=this.canMove(this.arr).canMoveDown;
                     if(canMoveDown){
                         for(let v of activeModel){
                             v.style.top = `${parseInt(v.style.top) + 20}px`;
                         }
+                        this.curTop++;
                     }else{
                         console.log("can`t move down");
                     }
@@ -202,11 +249,17 @@ window.onload = () => {
     };
     const arr=[[1,0],[1,0],[1,1]];
     const BLOCK_SIZE=20;
+    let curLeft=parseInt((siteSize.left+siteSize.width/2)/BLOCK_SIZE);
+    let curTop=parseInt(siteSize.top/BLOCK_SIZE);
+    console.log("curLeft",curLeft);
+    console.log("curTop",curTop);
     const params={
         arr:arr,
         siteSize:siteSize,
-        BLOCK_SIZE:BLOCK_SIZE
-    }
+        BLOCK_SIZE:BLOCK_SIZE,
+        curLeft:curLeft,
+        curTop:curTop
+    };
     let block = new Block(params);
     block.init();
     block.move();
