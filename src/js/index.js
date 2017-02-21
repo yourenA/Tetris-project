@@ -43,7 +43,6 @@ class Block {
             }
             newArr.push(temArr)
         }
-        console.log(newArr);
         let lefts = [];
         let tops = [];
 
@@ -65,10 +64,8 @@ class Block {
 
     checkArrWith1(arr, callback) {
         for (let i = 0; i <= arr.length - 1; i++) {
-            console.log(arr[i])
             for (let j = 0; j <= arr.length - 1; j++) {
                 if (arr[i][j] == 1) {
-                    console.log("i:", i, " j:", j);
                     callback.call(this, i + this.curTop, j + this.curLeft)
                 }
             }
@@ -89,138 +86,166 @@ class Block {
     /**
      *获取当前方块可以到达的边界
      */
-    getInterval(curLeft,curTop){
-        let inactiveModel=document.querySelectorAll('.inactiveModel'),
-            highest=null,
-            leftmost=null,
-            rightmost=null;
-        if(inactiveModel.length === 0){
+    getInterval(curLeft, curTop) {
+        let inactiveModel = document.querySelectorAll('.inactiveModel'),
+            highest = null,
+            leftmost = null,
+            rightmost = null;
+        if (inactiveModel.length === 0) {
             highest = this.siteSize.top + this.siteSize.height;
             leftmost = this.siteSize.left - this.BLOCK_SIZE;
             rightmost = this.siteSize.left + this.siteSize.width;
-        }else{
-            let tops=[],
-                lefts=[],
-                rights=[];
-
-            for(let v of inactiveModel){
-                let left=parseInt(v.style.left),
-                    top=parseInt(v.style.top);
-                if(left === curLeft){
+        } else {
+            let tops = [],
+                lefts = [],
+                rights = [];
+            for (let v of inactiveModel) {
+                let left = parseInt(v.style.left),
+                    top = parseInt(v.style.top);
+                if (left === curLeft) {
                     tops.push(top)
                 }
-                if(top === curTop){
-                    if(left<curLeft){
+                if (top === curTop) {
+                    if (left < curLeft) {
                         lefts.push(left)
-                    }else if(left > curLeft){
+                    } else if (left > curLeft) {
                         rights.push(left)
                     }
                 }
-                if(tops.length === 0){
-                    highest=this.siteSize.top+this.siteSize.height;
-                }else{
-                    highest=Math.min(...tops);
-                }
+            }
+            if (tops.length === 0) {
+                highest = this.siteSize.top + this.siteSize.height;
+            } else {
+                highest = Math.min(...tops);
+            }
 
-                if(lefts.length===0){
-                    leftmost=this.siteSize.left-this.BLOCK_SIZE;
-                }else{
-                    leftmost=Math.max(...lefts);
-                }
+            if (lefts.length === 0) {
+                leftmost = this.siteSize.left - this.BLOCK_SIZE;
+            } else {
+                leftmost = Math.max(...lefts);
+            }
 
-                if(rights.length===0){
-                    rightmost=this.siteSize+this.siteSize.width;
-                }else{
-                    rightmost=Math.min(...rights);
-                }
-
-
+            if (rights.length === 0) {
+                rightmost = this.siteSize.left + this.siteSize.width;
+            } else {
+                rightmost = Math.min(...rights);
             }
         }
 
-        return{
-            highest:highest,
-            leftmost:leftmost,
-            rightmost:rightmost
+        return {
+            highest: highest,
+            leftmost: leftmost,
+            rightmost: rightmost
         };
     }
 
+    /**
+     * 消除砖块
+     */
+    eliminate() {
+        let res = [],
+            inactiveModels = [...document.querySelectorAll('.inactiveModel')];
+        inactiveModels.sort(function (a, b) {
+            return parseInt(a.style.top) - parseInt(b.style.top);
+        });
+
+        for (let i = 0; i < inactiveModels.length;) {
+            let count = 0,
+                models = [];
+            for (let j = 0; j < inactiveModels.length; j++) {
+                if (inactiveModels[i].style.top === inactiveModels[j].style.top) {
+                    count++;
+                    models.push(inactiveModels[j]);
+                }
+            }
+
+            res.push({
+                models: models,
+                count: count,
+                top: parseInt(inactiveModels[i].style.top)
+            });
+            //for 循环的最后一个参数可以放在循环体内
+            i += count
+        }
+        return res
+
+    }
 
     /**
      * 判断是否可以移动
      */
-    canMove(arr, deform = false,move={
-        canMoveRight:true,
-        canMoveDown:true,
-        canMoveLeft:true
+    canMove(arr, deform = false, move = {
+        canMoveRight: true,
+        canMoveDown: true,
+        canMoveLeft: true
     }) {
         this.checkArrWith1(arr, function (i, j) {
-            let {highest,leftmost,rightmost}=this.getInterval(j*this.BLOCK_SIZE,i*this.BLOCK_SIZE);
-            if(deform){
-                if(this.BLOCK_SIZE*(j+1)>rightmost){
-                    move.canMoveRight=false;
+            let {highest, leftmost, rightmost}=this.getInterval(j * this.BLOCK_SIZE, i * this.BLOCK_SIZE);
+            if (deform) {
+                if (this.BLOCK_SIZE * (j + 1) > rightmost) {
+                    move.canMoveRight = false;
                 }
-                if(this.BLOCK_SIZE*(i+1)>highest){
-                    move.canMoveDown=false;
+                if (this.BLOCK_SIZE * (i + 1) > highest) {
+                    move.canMoveDown = false;
                 }
-                if(this.BLOCK_SIZE*(j-1)<leftmost){
-                    move.canMoveLeft=false
+                if (this.BLOCK_SIZE * (j - 1) < leftmost) {
+                    move.canMoveLeft = false
                 }
-            }else{
-                if(this.BLOCK_SIZE*(j+1)>=rightmost){
-                    move.canMoveRight=false;
+            } else {
+                if (this.BLOCK_SIZE * (j + 1) >= rightmost) {
+                    move.canMoveRight = false;
                 }
-                if(this.BLOCK_SIZE*(i+1)>=highest){
-                    move.canMoveDown=false;
+                if (this.BLOCK_SIZE * (i + 1) >= highest) {
+                    move.canMoveDown = false;
                 }
-                if(this.BLOCK_SIZE*(j-1)<=leftmost){
-                    move.canMoveLeft=false
+                if (this.BLOCK_SIZE * (j - 1) <= leftmost) {
+                    move.canMoveLeft = false
                 }
             }
 
         });
-        return move
-        //Array.from方法用于将类数组转为真正的数组
-        //for...of: for...in循环读取键名，for...of循环读取键值
-        // for(let v of Array.from(activeModel)){
-        //     tops.push(parseInt(v.style.top));
-        //     lefts.push(parseInt(v.style.left))
-        // }
+        return move;
+        /* Array.from方法用于将类数组转为真正的数组
+         for...of: for...in循环读取键名，for...of循环读取键值
+         for(let v of Array.from(activeModel)){
+         tops.push(parseInt(v.style.top));
+         lefts.push(parseInt(v.style.left))
+         }
 
-        //min() 方法可返回指定的数字中带有最低值的数字。参数为用逗号分隔的参数序列，不是数组
-        //max() 方法可返回指定的数字中带有最大值的数字。
-        //... 扩展运算符：将数组转为用逗号分隔的参数序列
-        //... reset运算符：其功能与扩展运算符恰好相反，把逗号隔开的值序列组合成一个数组
-        // let top = Math.min(...tops),
-        //     left = Math.min(...lefts),
-        //     right = Math.max(...lefts),
-        //     down = Math.max(...tops);
-        // if (deform) {
-        //     if (right + 20 >= this.siteSize.left + this.siteSize.width) {
-        //         canMoveRight = false;
-        //     }
-        // } else {
-        //     if (right + 20 >= this.siteSize.left + this.siteSize.width) {
-        //         canMoveRight = false;
-        //     }
-        // }
-        //
-        // if (left - 20 < this.siteSize.left) {
-        //     canMoveLeft = false;
-        // }
-        // if (down + 20 >= this.siteSize.top + this.siteSize.height) {
-        //     canMoveDown = false;
-        // }
-        // if (top - 20 < this.siteSize.top) {
-        //     canMoveTop = false;
-        // }
-        //
-        // return {
-        //     canMoveRight: canMoveRight,
-        //     canMoveLeft: canMoveLeft,
-        //     canMoveTop: canMoveTop,
-        //     canMoveDown: canMoveDown
-        // }
+         min() 方法可返回指定的数字中带有最低值的数字。参数为用逗号分隔的参数序列，不是数组
+         max() 方法可返回指定的数字中带有最大值的数字。
+         ... 扩展运算符：将数组转为用逗号分隔的参数序列
+         ... reset运算符：其功能与扩展运算符恰好相反，把逗号隔开的值序列组合成一个数组
+         let top = Math.min(...tops),
+         left = Math.min(...lefts),
+         right = Math.max(...lefts),
+         down = Math.max(...tops);
+         if (deform) {
+         if (right + 20 >= this.siteSize.left + this.siteSize.width) {
+         canMoveRight = false;
+         }
+         } else {
+         if (right + 20 >= this.siteSize.left + this.siteSize.width) {
+         canMoveRight = false;
+         }
+         }
+
+         if (left - 20 < this.siteSize.left) {
+         canMoveLeft = false;
+         }
+         if (down + 20 >= this.siteSize.top + this.siteSize.height) {
+         canMoveDown = false;
+         }
+         if (top - 20 < this.siteSize.top) {
+         canMoveTop = false;
+         }
+
+         return {
+         canMoveRight: canMoveRight,
+         canMoveLeft: canMoveLeft,
+         canMoveTop: canMoveTop,
+         canMoveDown: canMoveDown
+         }*/
     }
 
     /**
@@ -235,7 +260,6 @@ class Block {
                 canMoveTop,
                 canMoveDown;
             const key = e.keyCode;
-            console.log("key", key);
             switch (key) {
                 //left
                 case 37:
@@ -257,7 +281,8 @@ class Block {
                     move = this.canMove(newArr, true);
                     canMoveDown = move.canMoveDown;
                     canMoveRight = move.canMoveRight;
-                    if (canMoveRight && canMoveRight) {
+                    canMoveLeft = move.canMoveLeft;
+                    if (canMoveRight && canMoveDown && canMoveLeft) {
                         this.arr = newArr;
                         for (let i in lefts) {
                             activeModel[i].style.left = `${lefts[i]}px`;
@@ -299,25 +324,41 @@ class Block {
      * 初始化方块*/
     init() {
         this.checkArrWith1(this.arr, this.draw)
-        let aciveModel=document.querySelectorAll('.activityModel');
-        const fallDown=setTimeout(function loop() {
-            let canMoveDown=this.canMove(this.arr).canMoveDown;
-            if(canMoveDown){
-                for(let v of aciveModel){
-                    v.style.top=`${parseInt(v.style.top)+this.BLOCK_SIZE}px`
+        let aciveModel = document.querySelectorAll('.activityModel');
+        const fallDown = setTimeout(function loop() {
+            //setTimeout会改变this的指向，所以需要bind(this)
+            let canMoveDown = this.canMove(this.arr).canMoveDown;
+            if (canMoveDown) {
+                for (let v of aciveModel) {
+                    v.style.top = `${parseInt(v.style.top) + this.BLOCK_SIZE}px`
                 }
                 this.curTop++;
-                setTimeout(loop.bind(this),600);
+                setTimeout(loop.bind(this), 600);
 
-            }else{
-                console.log("can`t move down");
-                for(let i=0 ;i<=aciveModel.length-1;i++){
-                    aciveModel[i].className='inactiveModel';
+            } else {
+                for (let i = 0; i <= aciveModel.length - 1; i++) {
+                    aciveModel[i].className = 'inactiveModel';
+                }
+
+                let res = this.eliminate();
+                for (let i = 0; i < res.length; i++) {
+                    let {count, models, top}=res[i];
+                    if (count === parseInt(this.siteSize.width / this.BLOCK_SIZE)) {
+                        for (let j = 0; j < models.length; j++) {
+                            document.body.removeChild(models[j]);
+                        }
+                        let inactiveModels = document.querySelectorAll('.inactiveModel');
+                        for (let v of inactiveModels) {
+                            if (parseInt(v.style.top) < top) {
+                                v.style.top = `${parseInt(v.style.top) + this.BLOCK_SIZE}px`
+                            }
+                        }
+                    }
                 }
                 init();
                 clearTimeout(fallDown)
             }
-        }.bind(this),600)
+        }.bind(this), 600)
     }
 }
 /**
@@ -363,8 +404,6 @@ window.onload = () => {
     const BLOCK_SIZE = 20;
     let curLeft = parseInt((siteSize.left + siteSize.width / 2) / BLOCK_SIZE);
     let curTop = parseInt(siteSize.top / BLOCK_SIZE);
-    console.log("curLeft", curLeft);
-    console.log("curTop", curTop);
     window.__arr__ = arr;
     window.__siteSize__ = siteSize;
     window.__BLOCK_SIZE__ = BLOCK_SIZE;
