@@ -66,8 +66,10 @@ class Block {
      */
 
     checkArrWith1(arr, callback,el,className) {
-        for (let i = 0; i <= arr.length - 1; i++) {
+        console.log(arr)
+        for (let i = 0; i <= arr.length - 1; i++) {//循环二维数组
             for (let j = 0; j <= arr[0].length - 1; j++) {
+                //如果二维数据里的数据为1，则把i,j对应的位置画出来
                 if (arr[i][j] == 1) {
                     callback.call(this, i + this.curTop, j + this.curLeft,el, className)
                 }
@@ -86,17 +88,18 @@ class Block {
         model.style.top = `${top}px`;
         model.style.left = `${left}px`;
         el.appendChild(model);
+        debugger
     }
 
     /**
      *获取当前方块可以到达的边界
      */
     getInterval(curLeft, curTop) {
-        let inactiveModel = document.querySelectorAll('.inactiveModel'),
+        let inactiveModel = document.querySelectorAll('.inactiveModel'),//获取已经失效的model
             highest = null,
             leftmost = null,
             rightmost = null;
-        if (inactiveModel.length === 0) {
+        if (inactiveModel.length === 0) {//如果没有失效的model,则边界为
             highest = this.siteSize.top + this.siteSize.height;
             leftmost = this.siteSize.left - this.BLOCK_SIZE;
             rightmost = this.siteSize.left + this.siteSize.width;
@@ -104,8 +107,8 @@ class Block {
             let tops = [],
                 lefts = [],
                 rights = [];
-            for (let v of inactiveModel) {
-                let left = parseInt(v.style.left),
+            for (let v of inactiveModel) {//循环所有的失效model
+                let left = parseInt(v.style.left),//获得每一个失效model的left和top
                     top = parseInt(v.style.top);
                 if (left === curLeft) {
                     tops.push(top)
@@ -136,7 +139,6 @@ class Block {
                 rightmost = Math.min(...rights);
             }
         }
-
         return {
             highest: highest,
             leftmost: leftmost,
@@ -211,6 +213,7 @@ class Block {
         canMoveDown: true,
         canMoveLeft: true
     }) {
+        //checkArrWith1是确定i，j
         this.checkArrWith1(arr, function (i, j) {
             let {highest, leftmost, rightmost}=this.getInterval(j * this.BLOCK_SIZE, i * this.BLOCK_SIZE);
             if (deform) {
@@ -359,9 +362,11 @@ class Block {
     init() {
         let next=document.querySelector('#next');
         next.innerHTML=null;
+        //画出第一个activityModel
         this.checkArrWith1(this.arr, this.draw,document.body,'activityModel');
+        //画出第一个nextModel
         this.checkArrWith1(this.nextArr,this.draw,next,'nextModel');
-
+        debugger
         let aciveModel = document.querySelectorAll('.activityModel');
         const fallDown = setTimeout(function loop() {
             //setTimeout会改变this的指向，所以需要bind(this)
@@ -458,9 +463,9 @@ class Block {
  * 数据初始化
  */
 const init = (nextArr)=> {
-    const random=Math.floor((Math.random()*__arr__.length)),
-        nextRandom=Math.floor((Math.random()*__arr__.length)),
-        arr =nextArr ? nextArr : __arr__[random],
+    const random=Math.floor((Math.random()*__arr__.length)),//当前方块数组
+        nextRandom=Math.floor((Math.random()*__arr__.length)),//下一方块数组
+        arr =nextArr ? nextArr : __arr__[random],//arr为二维数组 如果有传进init()参数，使用参数为arr,否则以[random]为arr
         delay=600;
     const params = {
         arr: arr,
@@ -472,9 +477,9 @@ const init = (nextArr)=> {
         delay:delay,
         highestScore:__highestScore__
     };
-    let block = new Block(params);
-    block.init();
-    block.move();
+    let block = new Block(params);//实例化对象class
+    block.init();//调用实例init方法
+    block.move();//调用实例move方法
 };
 /**
  *浏览器初始化
@@ -490,16 +495,17 @@ const init = (nextArr)=> {
  * };
  */
 window.onload = () => {
-    console.log("window onload");
     let site = document.querySelector('.site');
     // Window.getComputedStyle() 方法会在一个元素应用完有效样式且计算完所有属性的基本值之后给出所有 CSS 属性的值。
     let {width, height, left, top} =window.getComputedStyle(site);
+    //将获取到的width, height, left, top放到一个对象里
     let siteSize = {
         width: parseInt(width),
         height: parseInt(height),
         left: parseInt(left),
         top: parseInt(top)
     };
+    //定义不同形状 三位数组
     const arr =[
         //L
         [[1, 0], [1, 0], [1, 1]],
@@ -538,8 +544,9 @@ window.onload = () => {
         [[1, 0], [1, 1], [0, 1]]
     ];
     const BLOCK_SIZE = 20;
-    let curLeft = parseInt((siteSize.left + siteSize.width / 2) / BLOCK_SIZE);
-    let curTop = parseInt(siteSize.top / BLOCK_SIZE);
+    /*定义开始偏移量基数*/
+    let curLeft = parseInt((siteSize.left + siteSize.width / 2) / BLOCK_SIZE);//15，偏移15个单位
+    let curTop = parseInt(siteSize.top / BLOCK_SIZE);//10
     window.__arr__ = arr;
     window.__siteSize__ = siteSize;
     window.__BLOCK_SIZE__ = BLOCK_SIZE;
