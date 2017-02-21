@@ -14,7 +14,8 @@
 }
 $modelStatus:(
   activityModel:linear-gradient(70deg, indianred, white),
-  inactiveModel:linear-gradient(70deg, grey, white)
+  inactiveModel:linear-gradient(70deg, grey, white),
+        nextModel:linear-gradient(70deg, #37378c, white)
 );
 
 /* 遍历$modelStatus的所有key，创建各自的类 */
@@ -46,5 +47,8 @@ $modelStatus:(
   cursor: pointer;
   z-index: 999;
   background: linear-gradient(0deg, indianred, lightpink);
-  display: none;
+}
+#next {
+  margin-bottom: 80px;
+  position: relative;
 }

@@ -26,6 +26,9 @@ class Block {
          */
         this.siteSize = params.siteSize;
         this.arr = params.arr;
+        this.nextArr=params.nextArr;
+        this.highestScore=params.highestScore;
+        this.delay=params.delay;
         this.BLOCK_SIZE = params.BLOCK_SIZE;
         this.curLeft = params.curLeft;
         this.curTop = params.curTop;
@@ -62,11 +65,11 @@ class Block {
      * 判断二维数组为1的下标
      */
 
-    checkArrWith1(arr, callback) {
+    checkArrWith1(arr, callback,el,className) {
         for (let i = 0; i <= arr.length - 1; i++) {
             for (let j = 0; j <= arr[0].length - 1; j++) {
                 if (arr[i][j] == 1) {
-                    callback.call(this, i + this.curTop, j + this.curLeft)
+                    callback.call(this, i + this.curTop, j + this.curLeft,el, className)
                 }
             }
         }
@@ -75,12 +78,14 @@ class Block {
     /**
      * 根据数组矩阵画出当前方块
      */
-    draw(i, j) {
-        let activeModel = document.createElement('div');
-        activeModel.className = 'activityModel';
-        activeModel.style.top = `${i * this.BLOCK_SIZE}px`;
-        activeModel.style.left = `${j * this.BLOCK_SIZE}px`;
-        document.body.appendChild(activeModel);
+    draw(i, j,el,className) {
+        let left = className === 'nextModel' ? j * this.BLOCK_SIZE - (this.siteSize.left + this.siteSize.width / 2 - this.BLOCK_SIZE) : j * this.BLOCK_SIZE;
+        let top = className === 'nextModel' ? i * this.BLOCK_SIZE - this.siteSize.top : i * this.BLOCK_SIZE;
+        let model = document.createElement('div');
+        model.className = className;
+        model.style.top = `${top}px`;
+        model.style.left = `${left}px`;
+        el.appendChild(model);
     }
 
     /**
@@ -352,7 +357,11 @@ class Block {
     /**
      * 初始化方块*/
     init() {
-        this.checkArrWith1(this.arr, this.draw)
+        let next=document.querySelector('#next');
+        next.innerHTML=null;
+        this.checkArrWith1(this.arr, this.draw,document.body,'activityModel');
+        this.checkArrWith1(this.nextArr,this.draw,next,'nextModel');
+
         let aciveModel = document.querySelectorAll('.activityModel');
         const fallDown = setTimeout(function loop() {
             //setTimeout会改变this的指向，所以需要bind(this)
@@ -362,7 +371,7 @@ class Block {
                     v.style.top = `${parseInt(v.style.top) + this.BLOCK_SIZE}px`
                 }
                 this.curTop++;
-                setTimeout(loop.bind(this), 600);
+                setTimeout(loop.bind(this),this.delay/window.__level__);
 
             } else {
                 for (let i = 0; i <= aciveModel.length - 1; i++) {
@@ -382,6 +391,17 @@ class Block {
                                 v.style.top = `${parseInt(v.style.top) + this.BLOCK_SIZE}px`
                             }
                         }
+                        window.__score__+=window.__level__ * 100;
+                        let score=document.querySelector('#score');
+                        score.innerText=window.__score__;
+                        if (window.__score__ - (window.__level__ - 1) * (window.__level__ - 1) * 1000 >= window.__level__ * window.__level__ * 1000
+                            && window.__level__ <= 4) {
+                            window.__level__++;
+                            let level = document.querySelector('#level');
+                            level.innerText = window.__level__;
+                        }
+
+
                     }
                 }
 
@@ -398,6 +418,8 @@ class Block {
                         }
                         if(curTop < this.siteSize.top){
                             clearInterval(fillId);
+                            let next=document.querySelector('#next');
+                            next.innerHTML=null;
                             let startOrRestart=document.querySelector('.start-restart');
                             startOrRestart.style.display='block';
                             startOrRestart.onclick=(e)=>{
@@ -409,12 +431,23 @@ class Block {
                                         document.body.removeChild(v);
                                     }
                                 }
+                                if (this.highestScore < window.__score__) {
+                                    localStorage.setItem('highestScore', window.__score__);
+                                    let highestScoreDiv = document.querySelector('#highest-score');
+                                    highestScoreDiv.innerText = window.__score__;
+                                }
+                                window.__score__ = 0;
+                                let score = document.querySelector('#score');
+                                score.innerText = window.__score__;
+                                window.__level__ = 1;
+                                let level = document.querySelector('#level');
+                                level.innerText = window.__level__;
                                 this.init();
                             }
                         }
                     }.bind(this),30)
                 }else{
-                    init()
+                    init(this.nextArr)
                 }
                 clearTimeout(fallDown)
             }
@@ -424,15 +457,20 @@ class Block {
 /**
  * 数据初始化
  */
-const init = ()=> {
+const init = (nextArr)=> {
     const random=Math.floor((Math.random()*__arr__.length)),
-        arr =__arr__[random];
+        nextRandom=Math.floor((Math.random()*__arr__.length)),
+        arr =nextArr ? nextArr : __arr__[random],
+        delay=600;
     const params = {
         arr: arr,
+        nextArr:__arr__[nextRandom],
         siteSize: __siteSize__,
         BLOCK_SIZE: __BLOCK_SIZE__,
         curLeft: __curLeft__,
-        curTop: __curTop__
+        curTop: __curTop__,
+        delay:delay,
+        highestScore:__highestScore__
     };
     let block = new Block(params);
     block.init();
@@ -507,8 +545,20 @@ window.onload = () => {
     window.__BLOCK_SIZE__ = BLOCK_SIZE;
     window.__curLeft__ = curLeft;
     window.__curTop__ = curTop;
+    window.__level__=1;
+    window.__score__=0;
+    const highestScore=localStorage.getItem('highestScore') || 0;
+    let highestScoreDiv=document.querySelector('#highest-score');
+    highestScoreDiv.innerText=highestScore;
+    window.__highestScore__=highestScore;
 
-    init();
+    let start=document.querySelector('.start-restart');
+    start.onclick=(e)=>{
+        e.preventDefault();
+        start.innerText='restart';
+        start.style.display='none';
+        init();
+    };
 
 
 };

@@ -5,7 +5,7 @@
   box-sizing: border-box; }
 
 /*定义model的公共css*/
-.activityModel, .inactiveModel {
+.activityModel, .inactiveModel, .nextModel {
   border: 1px solid black;
   width: 20px;
   height: 20px;
@@ -19,6 +19,10 @@
 .inactiveModel {
   background: -webkit-linear-gradient(20deg, grey, white);
   background: linear-gradient(70deg, grey, white); }
+
+.nextModel {
+  background: -webkit-linear-gradient(20deg, #37378c, white);
+  background: linear-gradient(70deg, #37378c, white); }
 
 .site {
   position: absolute;
@@ -40,5 +44,8 @@
   cursor: pointer;
   z-index: 999;
   background: -webkit-linear-gradient(bottom, indianred, lightpink);
-  background: linear-gradient(0deg, indianred, lightpink);
-  display: none; }
+  background: linear-gradient(0deg, indianred, lightpink); }
+
+#next {
+  margin-bottom: 80px;
+  position: relative; }
