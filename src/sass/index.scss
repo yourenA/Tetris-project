@@ -7,13 +7,15 @@
 
 /*定义model的公共css*/
 %Model{
-  border: 1px;
+  border: 1px solid black;
   width: 20px;
   height: 20px;
   position: absolute;
 }
 $modelStatus:(
-  activityModel:linear-gradient(70deg, indianred, white)
+  activityModel:linear-gradient(70deg, indianred, white),
+  inactiveModel:linear-gradient(70deg, grey, white),
+        nextModel:linear-gradient(70deg, #37378c, white)
 );
 
 /* 遍历$modelStatus的所有key，创建各自的类 */
@@ -31,4 +33,22 @@ $modelStatus:(
   width: 200px;
   height: 360px;
   background: black;
+}
+
+.start-restart{
+  padding: 5px 15px;
+  border: 1px solid lightslategrey;
+  color: white;
+  text-align: center;
+  width: 150px;
+  left: 220px;
+  top: 380px;
+  position: absolute;
+  cursor: pointer;
+  z-index: 999;
+  background: linear-gradient(0deg, indianred, lightpink);
+}
+#next {
+  margin-bottom: 80px;
+  position: relative;
 }
