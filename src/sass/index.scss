@@ -33,3 +33,18 @@ $modelStatus:(
   height: 360px;
   background: black;
 }
+
+.start-restart{
+  padding: 5px 15px;
+  border: 1px solid lightslategrey;
+  color: white;
+  text-align: center;
+  width: 150px;
+  left: 220px;
+  top: 380px;
+  position: absolute;
+  cursor: pointer;
+  z-index: 999;
+  background: linear-gradient(0deg, indianred, lightpink);
+  display: none;
+}

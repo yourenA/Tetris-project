@@ -172,6 +172,33 @@ class Block {
     }
 
     /**
+     * 当灰色砖块高于画布偏移量，游戏结束
+     */
+    gameOver(){
+        const inactiveModel=document.querySelectorAll('.inactiveModel');
+        let tops=[];
+        for(let v of inactiveModel){
+            tops.push(parseInt(v.style.top));
+        }
+        return Math.min(...tops) <=this.siteSize.top
+    }
+
+    /**
+     * gameOver填充动画
+     */
+    /**
+     * class 静态方法
+     * 该方法不会被实例继承，而是直接通过类来调用 Block.fill();
+     * 父类的静态方法，可以被子类继承。
+     */
+    static fill(curTop,curLeft){
+        let model=document.createElement('div');
+        model.className='inactiveModel';
+        model.style.left=`${curLeft}px`;
+        model.style.top=`${curTop}px`;
+        document.body.appendChild(model);
+    }
+    /**
      * 判断是否可以移动
      */
     canMove(arr, deform = false, dispalcement=1,move = {
@@ -357,7 +384,38 @@ class Block {
                         }
                     }
                 }
-                init();
+
+                if(this.gameOver()){
+                    console.log('game over');
+                    let curTop=this.siteSize.height+this.siteSize.top-this.BLOCK_SIZE,
+                        curLeft=this.siteSize.width+this.siteSize.left-this.BLOCK_SIZE;
+                    let fillId=setInterval(function () {
+                        Block.fill(curTop,curLeft);
+                        curLeft -= this.BLOCK_SIZE;
+                        if(curLeft < this.siteSize.left){
+                            curLeft =this.siteSize.width+this.siteSize.left-this.BLOCK_SIZE;
+                            curTop -= this.BLOCK_SIZE
+                        }
+                        if(curTop < this.siteSize.top){
+                            clearInterval(fillId);
+                            let startOrRestart=document.querySelector('.start-restart');
+                            startOrRestart.style.display='block';
+                            startOrRestart.onclick=(e)=>{
+                                e.preventDefault();
+                                startOrRestart.style.display='none';
+                                let inactiveModels=[...document.querySelectorAll('.inactiveModel')];
+                                if(inactiveModels.length>0){
+                                    for(let v of inactiveModels){
+                                        document.body.removeChild(v);
+                                    }
+                                }
+                                this.init();
+                            }
+                        }
+                    }.bind(this),30)
+                }else{
+                    init()
+                }
                 clearTimeout(fallDown)
             }
         }.bind(this), 600)
