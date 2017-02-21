@@ -174,7 +174,7 @@ class Block {
     /**
      * 判断是否可以移动
      */
-    canMove(arr, deform = false, move = {
+    canMove(arr, deform = false, dispalcement=1,move = {
         canMoveRight: true,
         canMoveDown: true,
         canMoveLeft: true
@@ -185,7 +185,7 @@ class Block {
                 if (this.BLOCK_SIZE * (j + 1) > rightmost) {
                     move.canMoveRight = false;
                 }
-                if (this.BLOCK_SIZE * (i + 1) > highest) {
+                if (this.BLOCK_SIZE * (i + dispalcement) > highest) {
                     move.canMoveDown = false;
                 }
                 if (this.BLOCK_SIZE * (j - 1) < leftmost) {
@@ -195,7 +195,7 @@ class Block {
                 if (this.BLOCK_SIZE * (j + 1) >= rightmost) {
                     move.canMoveRight = false;
                 }
-                if (this.BLOCK_SIZE * (i + 1) >= highest) {
+                if (this.BLOCK_SIZE * (i + dispalcement) >= highest) {
                     move.canMoveDown = false;
                 }
                 if (this.BLOCK_SIZE * (j - 1) <= leftmost) {
@@ -260,62 +260,64 @@ class Block {
                 canMoveTop,
                 canMoveDown;
             const key = e.keyCode;
-            switch (key) {
-                //left
-                case 37:
-                    canMoveLeft = this.canMove(this.arr).canMoveLeft;
-                    if (canMoveLeft) {
-                        for (let v of activeModel) {
-                            v.style.left = `${parseInt(v.style.left) - 20}px`;
-                        }
-                        this.curLeft--;
+            if(activeModel.length){
+                switch (key) {
+                    //left
+                    case 37:
+                        canMoveLeft = this.canMove(this.arr).canMoveLeft;
+                        if (canMoveLeft) {
+                            for (let v of activeModel) {
+                                v.style.left = `${parseInt(v.style.left) - this.BLOCK_SIZE}px`;
+                            }
+                            this.curLeft--;
 
-                    } else {
-                        console.log("can`t move left")
-                    }
+                        } else {
+                            console.log("can`t move left")
+                        }
 
-                    break;
-                //up
-                case 38:
-                    let {newArr, lefts, tops}=this.clockwise(this.arr);
-                    move = this.canMove(newArr, true);
-                    canMoveDown = move.canMoveDown;
-                    canMoveRight = move.canMoveRight;
-                    canMoveLeft = move.canMoveLeft;
-                    if (canMoveRight && canMoveDown && canMoveLeft) {
-                        this.arr = newArr;
-                        for (let i in lefts) {
-                            activeModel[i].style.left = `${lefts[i]}px`;
-                            activeModel[i].style.top = `${tops[i]}px`
+                        break;
+                    //up
+                    case 38:
+                        let {newArr, lefts, tops}=this.clockwise(this.arr);
+                        move = this.canMove(newArr, true);
+                        canMoveDown = move.canMoveDown;
+                        canMoveRight = move.canMoveRight;
+                        canMoveLeft = move.canMoveLeft;
+                        if (canMoveRight && canMoveDown && canMoveLeft) {
+                            this.arr = newArr;
+                            for (let i in lefts) {
+                                activeModel[i].style.left = `${lefts[i]}px`;
+                                activeModel[i].style.top = `${tops[i]}px`
+                            }
                         }
-                    }
-                    break;
-                //right
-                case 39:
-                    canMoveRight = this.canMove(this.arr).canMoveRight;
-                    if (canMoveRight) {
-                        for (let v of activeModel) {
-                            v.style.left = `${parseInt(v.style.left) + 20}px`;
+                        break;
+                    //right
+                    case 39:
+                        canMoveRight = this.canMove(this.arr).canMoveRight;
+                        if (canMoveRight) {
+                            for (let v of activeModel) {
+                                v.style.left = `${parseInt(v.style.left) + this.BLOCK_SIZE}px`;
+                            }
+                            this.curLeft++
+                        } else {
+                            console.log("can`t move right")
                         }
-                        this.curLeft++
-                    } else {
-                        console.log("can`t move right")
-                    }
-                    break;
-                case 40:
-                    canMoveDown = this.canMove(this.arr).canMoveDown;
-                    if (canMoveDown) {
-                        for (let v of activeModel) {
-                            v.style.top = `${parseInt(v.style.top) + 20}px`;
+                        break;
+                    case 32:
+                        canMoveDown = this.canMove(this.arr,false,2).canMoveDown;
+                        if (canMoveDown) {
+                            for (let v of activeModel) {
+                                v.style.top = `${parseInt(v.style.top) + 2*this.BLOCK_SIZE}px`;
+                            }
+                            this.curTop +=2;
+                        } else {
+                            console.log("can`t move down");
                         }
-                        this.curTop++;
-                    } else {
-                        console.log("can`t move down");
-                    }
-                    break;
-                default:
-                    console.log("请选择上下左右按键");
-                    break;
+                        break;
+                    default:
+                        console.log("请选择上下左右按键");
+                        break;
+                }
             }
         }
     }
