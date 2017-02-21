@@ -36,7 +36,7 @@ class Block {
      */
     clockwise(arr) {
         let newArr = [];
-        for (let i = 0; i <= arr.length - 1; i++) {
+        for (let i = 0; i <= arr[0].length - 1; i++) {
             let temArr = [];
             for (let j = arr.length - 1; j >= 0; j--) {
                 temArr.push(arr[j][i]);
@@ -64,7 +64,7 @@ class Block {
 
     checkArrWith1(arr, callback) {
         for (let i = 0; i <= arr.length - 1; i++) {
-            for (let j = 0; j <= arr.length - 1; j++) {
+            for (let j = 0; j <= arr[0].length - 1; j++) {
                 if (arr[i][j] == 1) {
                     callback.call(this, i + this.curTop, j + this.curLeft)
                 }
@@ -425,8 +425,10 @@ class Block {
  * 数据初始化
  */
 const init = ()=> {
+    const random=Math.floor((Math.random()*__arr__.length)),
+        arr =__arr__[random];
     const params = {
-        arr: __arr__,
+        arr: arr,
         siteSize: __siteSize__,
         BLOCK_SIZE: __BLOCK_SIZE__,
         curLeft: __curLeft__,
@@ -460,7 +462,43 @@ window.onload = () => {
         left: parseInt(left),
         top: parseInt(top)
     };
-    const arr = [[1, 0], [1, 0], [1, 1]];
+    const arr =[
+        //L
+        [[1, 0], [1, 0], [1, 1]],
+        [[1, 1, 1], [1, 0, 0]],
+        [[1, 1], [0, 1], [0, 1]],
+        [[0, 0, 1], [1, 1, 1]],
+        //』
+        [[0, 1], [0, 1], [1, 1]],
+        [[1, 0, 0], [1, 1, 1]],
+        [[1, 1], [1, 0], [1, 0]],
+        [[1, 1, 1], [0, 0, 1]],
+        //I
+        [[1], [1], [1], [1]],
+        [[1, 1, 1, 1]],
+        [[1], [1], [1], [1]],
+        [[1, 1, 1, 1]],
+        //田
+        [[1, 1], [1, 1]],
+        [[1, 1], [1, 1]],
+        [[1, 1], [1, 1]],
+        [[1, 1], [1, 1]],
+        //T
+        [[1, 1, 1], [0, 1, 0]],
+        [[0, 1], [1, 1], [0, 1]],
+        [[0, 1, 0], [1, 1, 1]],
+        [[1, 0], [1, 1], [1, 0]],
+        //Z
+        [[1, 1, 0], [0, 1, 1]],
+        [[0, 1], [1, 1], [1, 0]],
+        [[1, 1, 0], [0, 1, 1]],
+        [[0, 1], [1, 1], [1, 0]],
+        //倒Z
+        [[0, 1, 1], [1, 1, 0]],
+        [[1, 0], [1, 1], [0, 1]],
+        [[0, 1, 1], [1, 1, 0]],
+        [[1, 0], [1, 1], [0, 1]]
+    ];
     const BLOCK_SIZE = 20;
     let curLeft = parseInt((siteSize.left + siteSize.width / 2) / BLOCK_SIZE);
     let curTop = parseInt(siteSize.top / BLOCK_SIZE);
